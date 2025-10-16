@@ -17,16 +17,19 @@ jobs:
       - name: 安装 CMake
         uses: lukka/get-cmake@v3.28.3
 
-      - name: 安装 Android NDK
-        uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: 25.2.9519653
+      - name: 安装 Android SDK 工具
+        run: sudo apt-get update && sudo apt-get install -y wget unzip
 
+      - name: 安装 NDK 25.2.9519653
+        run: |
+          yes | sdkmanager --install "ndk;25.2.9519653"
+          echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/25.2.9519653" >> $GITHUB_ENV
+    
       - name: 配置 CMake
         run: |
           cmake -S third_party/libjpeg-turbo -B build/${{ matrix.abi }} \
             -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake\
             -DANDROID_ABI=${{ matrix.abi }} \
             -DANDROID_PLATFORM=android-21 \
             -DENABLE_SHARED=TRUE \
@@ -41,4 +44,5 @@ jobs:
         with:
           name: android-${{ matrix.abi }}
           path: build/${{ matrix.abi }}
+
 
