@@ -1,14 +1,11 @@
-name: Build libjpeg-turbo for Android
+name: Build libjpeg-turbo for Android (arm64-v8a)
 
 on:
   workflow_dispatch:   # 手动触发
 
 jobs:
-  android:
+  android-arm64:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        abi: [ arm64-v8a ]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -17,32 +14,28 @@ jobs:
       - name: 安装 CMake
         uses: lukka/get-cmake@v3.28.3
 
-      - name: 安装 Android SDK 工具
-        run: sudo apt-get update && sudo apt-get install -y wget unzip
+      # 这里用最新稳定版 NDK，避免 404 问题
+      - name: 安装 Android NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: 26.3.11579264
 
-      - name: 安装 NDK 25.2.9519653
+      - name: 配置 CMake (arm64-v8a)
         run: |
-          yes | sdkmanager --install "ndk;25.2.9519653"
-          echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/25.2.9519653" >> $GITHUB_ENV
-    
-      - name: 配置 CMake
-        run: |
-          cmake -S third_party/libjpeg-turbo -B build/${{ matrix.abi }} \
+          cmake -S third_party/libjpeg-turbo -B build/arm64-v8a \
             -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake\
-            -DANDROID_ABI=${{ matrix.abi }} \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=arm64-v8a \
             -DANDROID_PLATFORM=android-21 \
             -DENABLE_SHARED=TRUE \
             -DENABLE_STATIC=FALSE \
             -DWITH_TURBOJPEG=TRUE
 
       - name: 编译
-        run: cmake --build build/${{ matrix.abi }} --config Release -j$(nproc)
+        run: cmake --build build/arm64-v8a --config Release -j$(nproc)
 
       - name: 上传产物
         uses: actions/upload-artifact@v4
         with:
-          name: android-${{ matrix.abi }}
-          path: build/${{ matrix.abi }}
-
-
+          name: android-arm64-v8a
+          path: build/arm64-v8a
