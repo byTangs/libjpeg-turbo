@@ -14,21 +14,36 @@ jobs:
       - name: Install CMake
         run: brew install cmake
 
-      # 构建 iOS 真机架构
+      # 构建 iOS 真机 (arm64)
       - name: Build iOS (arm64)
         run: |
           mkdir build-ios && cd build-ios
-          cmake .. \
-            -G Xcode \
+          cmake .. -G Xcode \
             -DCMAKE_SYSTEM_NAME=iOS \
             -DCMAKE_OSX_ARCHITECTURES=arm64 \
             -DCMAKE_SYSTEM_PROCESSOR=arm64 \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
             -DENABLE_SHARED=OFF \
-            -DENABLE_STATIC=ON
-          cmake --build . --config Release --target jpeg
+            -DENABLE_STATIC=ON \
+            -DWITH_TOOLS=OFF
+          cmake --build . --config Release --target jpeg-static
 
-      # 合并成一个 fat library
+      # 构建 iOS 模拟器 (x86_64 + arm64)
+      - name: Build iOS Simulator (x86_64/arm64)
+        run: |
+          mkdir build-sim && cd build-sim
+          cmake .. -G Xcode \
+            -DCMAKE_SYSTEM_NAME=iOS \
+            -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
+            -DCMAKE_SYSTEM_PROCESSOR=x86_64 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DENABLE_SHARED=OFF \
+            -DENABLE_STATIC=ON \
+            -DWITH_TOOLS=OFF \
+            -DCMAKE_OSX_SYSROOT=iphonesimulator
+          cmake --build . --config Release --target jpeg-static
+
+      # 合并成一个 fat 静态库
       - name: Create Universal Static Library
         run: |
           mkdir universal
@@ -37,11 +52,13 @@ jobs:
             build-sim/Release-iphonesimulator/libjpeg.a \
             -output universal/libjpeg.a
 
+      # 上传产物
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: libjpeg-turbo-ios
           path: universal/libjpeg.a
+
 
 
 
