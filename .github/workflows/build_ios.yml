@@ -1,0 +1,43 @@
+name: Build libjpeg-turbo iOS Static Library
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install CMake
+        run: brew install cmake
+
+      # 构建 iOS 真机架构
+      - name: Build iOS (arm64)
+        run: |
+          mkdir build-ios && cd build-ios
+          cmake .. \
+            -G Xcode \
+            -DCMAKE_SYSTEM_NAME=iOS \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DENABLE_SHARED=OFF \
+            -DENABLE_STATIC=ON
+          cmake --build . --config Release
+
+      # 合并成一个 fat library
+      - name: Create Universal Static Library
+        run: |
+          mkdir universal
+          lipo -create \
+            build-ios/Release-iphoneos/libjpeg.a \
+            build-sim/Release-iphonesimulator/libjpeg.a \
+            -output universal/libjpeg.a
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: libjpeg-turbo-ios
+          path: universal/libjpeg.a
