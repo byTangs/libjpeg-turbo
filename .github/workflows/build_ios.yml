@@ -25,26 +25,21 @@ jobs:
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
             -DENABLE_SHARED=OFF \
             -DENABLE_STATIC=ON \
-            -DWITH_TOOLS=OFF
-          cmake --build . --config Release --target jpeg-static
+            -DWITH_TOOLS=OFF \
+            -DWITH_TURBOJPEG=ON
+          cmake --build . --config Release --target turbojpeg-static
 
       # 合并成一个 fat 静态库
       - name: Create Universal Static Library
         run: |
           mkdir universal
           lipo -create \
-            build-ios/Release-iphoneos/libjpeg.a \
-            -output universal/libjpeg.a
+            build-ios/Release-iphoneos/libturbojpeg.a \
+            -output universal/libturbojpeg.a
 
       # 上传产物
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: libjpeg-turbo-ios
-          path: universal/libjpeg.a
-
-
-
-
-
-
+          path: universal/libturbojpeg.a
