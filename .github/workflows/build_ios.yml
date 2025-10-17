@@ -37,7 +37,8 @@ jobs:
             -output universal/libjpeg.a
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: libjpeg-turbo-ios
           path: universal/libjpeg.a
+
