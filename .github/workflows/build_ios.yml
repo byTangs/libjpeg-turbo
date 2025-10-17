@@ -28,21 +28,6 @@ jobs:
             -DWITH_TOOLS=OFF
           cmake --build . --config Release --target jpeg-static
 
-      # 构建 iOS 模拟器 (x86_64 + arm64)
-      - name: Build iOS Simulator (x86_64/arm64)
-        run: |
-          mkdir build-sim && cd build-sim
-          cmake .. -G Xcode \
-            -DCMAKE_SYSTEM_NAME=iOS \
-            -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
-            -DCMAKE_SYSTEM_PROCESSOR=x86_64 \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
-            -DENABLE_SHARED=OFF \
-            -DENABLE_STATIC=ON \
-            -DWITH_TOOLS=OFF \
-            -DCMAKE_OSX_SYSROOT=iphonesimulator
-          cmake --build . --config Release --target jpeg-static
-
       # 合并成一个 fat 静态库
       - name: Create Universal Static Library
         run: |
@@ -58,6 +43,7 @@ jobs:
         with:
           name: libjpeg-turbo-ios
           path: universal/libjpeg.a
+
 
 
 
