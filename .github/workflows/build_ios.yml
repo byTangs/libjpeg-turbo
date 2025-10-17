@@ -26,7 +26,7 @@ jobs:
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
             -DENABLE_SHARED=OFF \
             -DENABLE_STATIC=ON
-          cmake --build . --config Release
+          cmake --build . --config Release --target jpeg
 
       # 合并成一个 fat library
       - name: Create Universal Static Library
@@ -42,5 +42,6 @@ jobs:
         with:
           name: libjpeg-turbo-ios
           path: universal/libjpeg.a
+
 
 
