@@ -34,7 +34,6 @@ jobs:
           mkdir universal
           lipo -create \
             build-ios/Release-iphoneos/libjpeg.a \
-            build-sim/Release-iphonesimulator/libjpeg.a \
             -output universal/libjpeg.a
 
       # 上传产物
@@ -43,6 +42,7 @@ jobs:
         with:
           name: libjpeg-turbo-ios
           path: universal/libjpeg.a
+
 
 
 
