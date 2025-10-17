@@ -22,6 +22,7 @@ jobs:
             -G Xcode \
             -DCMAKE_SYSTEM_NAME=iOS \
             -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_SYSTEM_PROCESSOR=arm64 \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
             -DENABLE_SHARED=OFF \
             -DENABLE_STATIC=ON
@@ -41,4 +42,5 @@ jobs:
         with:
           name: libjpeg-turbo-ios
           path: universal/libjpeg.a
+
 
